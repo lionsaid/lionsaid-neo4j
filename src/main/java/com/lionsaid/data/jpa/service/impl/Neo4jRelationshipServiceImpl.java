@@ -12,6 +12,7 @@ import com.lionsaid.data.neo4j.entity.RelationEntity;
 import com.lionsaid.data.neo4j.enums.Direction;
 import com.lionsaid.data.neo4j.service.Neo4jRelationService;
 import lombok.AllArgsConstructor;
+import lombok.SneakyThrows;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -28,12 +29,13 @@ public class Neo4jRelationshipServiceImpl implements Neo4jRelationshipService {
     private final Neo4jRelationshipHistoryRepository neo4jRelationshipHistoryRepository;
     private final Neo4jRelationService neo4jRelationService;
 
+    @SneakyThrows
     @Override
     public void databaseSynchronizationDataToNeo4j() {
         CompletableFuture<Void> resultFuture = CompletableFuture.completedFuture(null);
         Page<Neo4jRelationship> page;
         do {
-          page = neo4jRelationshipRepository.findAll(PageRequest.of(0, 1000));
+            page = neo4jRelationshipRepository.findAll(PageRequest.of(0, 1000));
             List<CompletableFuture<Void>> futures = new ArrayList<>();
             for (Neo4jRelationship o : page.getContent()) {
                 CompletableFuture<Void> future = CompletableFuture.supplyAsync(() -> {
@@ -46,7 +48,6 @@ public class Neo4jRelationshipServiceImpl implements Neo4jRelationshipService {
                     JSONObject where = new JSONObject();
                     where.put("id", o.getId());
                     relationEntity.setWhere(where);
-
                     // 判断数据是否存在
                     if (Boolean.TRUE.equals(neo4jRelationService.exist(relationEntity))) {
                         // 更新数据至neo4j
@@ -70,8 +71,7 @@ public class Neo4jRelationshipServiceImpl implements Neo4jRelationshipService {
 
             // 等待所有任务完成后继续循环
             resultFuture = resultFuture.thenCompose((Void) -> allOf);
-
+            Thread.sleep(3000L);
         } while (!page.isEmpty());
-
     }
 }

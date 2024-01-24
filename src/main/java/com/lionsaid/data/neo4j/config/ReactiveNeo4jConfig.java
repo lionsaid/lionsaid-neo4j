@@ -7,6 +7,7 @@ import org.neo4j.driver.AuthTokens;
 import org.neo4j.driver.Config;
 import org.neo4j.driver.Driver;
 import org.neo4j.driver.GraphDatabase;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
@@ -15,15 +16,17 @@ import org.springframework.stereotype.Component;
 @Data
 @Component
 @AllArgsConstructor
+@EnableConfigurationProperties({Neo4jProperties.class})
 public class ReactiveNeo4jConfig {
 
-
+  private final   Neo4jProperties neo4jProperties;
     @Bean
     public Driver reactiveNeo4jClient() {
+        log.info("neo4jProperties {}",neo4jProperties.getUrl());
         var config = Config.builder()
                 .build();
         return GraphDatabase
-                .driver("neo4j://localhost:7687", AuthTokens.basic("neo4j", "uranium-nerve-archive-package-dialog-4125"), config);
+                .driver(neo4jProperties.getUrl(), AuthTokens.basic(neo4jProperties.getUsername(), neo4jProperties.getPassword()), config);
 
     }
 }

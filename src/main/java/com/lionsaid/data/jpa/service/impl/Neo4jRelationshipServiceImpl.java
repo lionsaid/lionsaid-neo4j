@@ -35,7 +35,7 @@ public class Neo4jRelationshipServiceImpl implements Neo4jRelationshipService {
         CompletableFuture<Void> resultFuture = CompletableFuture.completedFuture(null);
         Page<Neo4jRelationship> page;
         do {
-            page = neo4jRelationshipRepository.findAll(PageRequest.of(0, 1000));
+            page = neo4jRelationshipRepository.findAll(PageRequest.of(0, 200));
             List<CompletableFuture<Void>> futures = new ArrayList<>();
             for (Neo4jRelationship o : page.getContent()) {
                 CompletableFuture<Void> future = CompletableFuture.supplyAsync(() -> {
@@ -58,7 +58,7 @@ public class Neo4jRelationshipServiceImpl implements Neo4jRelationshipService {
                         // 保存数据至neo4j
                         neo4jRelationService.post(relationEntity);
                         // 更新数据log
-                        neo4jRelationshipHistoryRepository.saveAndFlush(Neo4jRelationshipHistory.builder().id(o.getName() + o.getId()).createdDate(LocalDateTime.now()).relationshipId(o.getId()).relationshipName(o.getName()).build());
+                        neo4jRelationshipHistoryRepository.saveAndFlush(Neo4jRelationshipHistory.builder().id(o.getName() + o.getId()).createdDate(LocalDateTime.now()).lastModifiedDate(LocalDateTime.now()).relationshipId(o.getId()).relationshipName(o.getName()).build());
                     }
                     return null;
                 });
@@ -70,8 +70,13 @@ public class Neo4jRelationshipServiceImpl implements Neo4jRelationshipService {
             CompletableFuture<Void> allOf = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
 
             // 等待所有任务完成后继续循环
-            resultFuture = resultFuture.thenCompose((Void) -> allOf);
-            Thread.sleep(3000L);
+// 当所有任务完成时执行操作
+            allOf.thenRunAsync(() -> {
+                System.out.println("所有任务已完成");
+                // 执行其他操作
+            });
+// 等待所有任务完成（阻塞操作）
+            allOf.join();
         } while (!page.isEmpty());
     }
 }

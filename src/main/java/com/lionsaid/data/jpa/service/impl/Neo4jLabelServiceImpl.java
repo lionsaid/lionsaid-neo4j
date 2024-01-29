@@ -32,7 +32,7 @@ public class Neo4jLabelServiceImpl implements Neo4jLabelService {
         Page<Neo4jNode> page;
         CompletableFuture<Void> resultFuture = CompletableFuture.completedFuture(null);
         do {
-            page = neo4jLabelRepository.findAll(PageRequest.of(0, 1000));
+            page = neo4jLabelRepository.findAll(PageRequest.of(0, 200));
             List<CompletableFuture<Void>> futures = new ArrayList<>();
             page.getContent().forEach(o -> {
                 CompletableFuture<Void> future = CompletableFuture.supplyAsync(() -> {
@@ -48,7 +48,7 @@ public class Neo4jLabelServiceImpl implements Neo4jLabelService {
                         //保存数据至neo4j
                         neo4jNodeService.post(NodeEntity.builder().labelName(o.getLabelName()).aliasName(o.getAliasName()).property(JSONObject.parseObject(o.getProperty())).build());
                         //更新数据log
-                        neo4jLabelHistoryRepository.saveAndFlush(Neo4jNodeHistory.builder().id(o.getLabelName() + o.getId()).createdDate(LocalDateTime.now()).labelName(o.getLabelName()).labelId(o.getId()).build());
+                        neo4jLabelHistoryRepository.saveAndFlush(Neo4jNodeHistory.builder().id(o.getLabelName() + o.getId()).createdDate(LocalDateTime.now()).lastModifiedDate(LocalDateTime.now()).labelName(o.getLabelName()).labelId(o.getId()).build());
                     }
                     return null;
                 });
@@ -57,7 +57,15 @@ public class Neo4jLabelServiceImpl implements Neo4jLabelService {
             // 等待所有异步任务完成
             CompletableFuture<Void> allOf = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
             // 等待所有任务完成后继续循环
-            resultFuture = resultFuture.thenCompose((Void) -> allOf);
+            // 当所有任务完成时执行操作
+            allOf.thenRunAsync(() -> {
+                System.out.println("所有任务已完成");
+                // 执行其他操作
+            });
+
+            // 等待所有任务完成（阻塞操作）
+            allOf.join();
+
             Thread.sleep(3000L);
         } while (!page.isEmpty());
     }

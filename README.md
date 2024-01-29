@@ -11,7 +11,7 @@ This document covers the integration of Neo4j with the Spring framework, utilizi
 - **Title**: Swagger3.0 (Open API) Neo4j Integration with Spring Framework Learning Documentation
 - **Description**: Learning documentation for Neo4j integration with the Spring framework
 - **Contact Person**: sunwei (Email: lionsaid@aliyun.com)
-- **License**: Apache 2.0 [Apache 2.0 License](https://www.apache.org/licenses/LICENSE-2.0.html)
+- **License**: MIT License [MIT License](https://choosealicense.com/licenses/mit/)
 - **Version**: 0.0.1
 
 ## Servers

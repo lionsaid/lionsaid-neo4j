@@ -22,8 +22,8 @@ import org.springframework.boot.SpringBootConfiguration;
                 contact = @Contact(name = "sunwei",                            // 作者名称
                         email = "lionsaid@aliyun.com"                 // 作者邮箱
                 ), license = @License(                                                // 设置联系人信息
-                name = "Apache 2.0",                                       // 授权名称
-                url = "https://www.apache.org/licenses/LICENSE-2.0.html"   // 授权信息
+                name = "MIT License",                                       // 授权名称
+                url = "https://choosealicense.com/licenses/mit/"   // 授权信息
         )),
         // ## 表示服务器地址或者URL模板列表，多个服务地址随时切换（只不过是有多台IP有当前的服务API）
         servers = {@Server(url = "http://localhost:8080", description = "本地服务器"),
